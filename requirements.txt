@@ -4,4 +4,6 @@ idna==3.11
 requests==2.32.5
 urllib3==2.6.3
 flask==3.0.0
+groq
+python-dotenv
 
