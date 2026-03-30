@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Salon Assistant</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8f7f4, #f1efe9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 420px;
+            height: 640px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: 0.3s ease;
+        }
+
+        .chat-container:hover {
+            transform: translateY(-3px);
+        }
+
+        .header {
+            padding: 18px;
+            font-weight: 600;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            color: #1f2937;
+            background: linear-gradient(to right, #ffffff, #fafafa);
+        }
+
+        .chatbox {
+            flex: 1;
+            padding: 18px;
+            overflow-y: auto;
+        }
+
+        .msg {
+            margin: 10px 0;
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            line-height: 1.5;
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(5px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        .user {
+            background: #1f2937;
+            color: white;
+            margin-left: auto;
+        }
+
+        .bot {
+            background: #f3f4f6;
+            color: #111;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #1f2937;
+        }
+
+        button {
+            margin-left: 8px;
+            padding: 12px 16px;
+            border: none;
+            background: #1f2937;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background: #111827;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            padding: 10px 14px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #f3f4f6;
+            transition: 0.2s;
+        }
+
+        .pill:hover {
+            background: #1f2937;
+            color: white;
+        }
+
+        .typing {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+    <div class="header">ClientFlow AI</div>
+
+    <div id="chatbox" class="chatbox">
+        <div class="msg bot">Hello 👋 How can I help you today?</div>
+    </div>
+
+    <div class="quick-actions">
+        <div class="pill" onclick="quickMsg('Book appointment')">Book</div>
+        <div class="pill" onclick="quickMsg('Show services')">Services</div>
+        <div class="pill" onclick="quickMsg('Prices')">Prices</div>
+    </div>
+
+    <div class="input-area">
+        <input id="message" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+async function sendMessage() {
+    const input = document.getElementById("message");
+    const chatbox = document.getElementById("chatbox");
+
+    const text = input.value;
+    if (!text) return;
+
+    chatbox.innerHTML += `<div class="msg user">${text}</div>`;
+
+    input.value = "";
+
+    // typing indicator
+    chatbox.innerHTML += `<div id="typing" class="typing">Typing...</div>`;
+    chatbox.scrollTop = chatbox.scrollHeight;
+
+    const res = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: text})
+    });
+
+    const data = await res.json();
+
+    document.getElementById("typing").remove();
+
+    chatbox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+function quickMsg(text) {
+    document.getElementById("message").value = text;
+    sendMessage();
+}
+</script>
+
+</body>
+</html>
